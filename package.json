@@ -1,0 +1,42 @@
+{
+  "name": "md-db",
+  "version": "0.0.1",
+  "description": "Use markdown flat files as a content database",
+  "type": "module",
+  "exports": {
+    "require": "./cjs/index.js",
+    "import": "./esm/index.js"
+  },
+  "main": "cjs/index.js",
+  "scripts": {
+    "clean": "rm -rf node_modules && npm install",
+    "update": "rm -rf package-lock.json && rm -rf node_modules && npm install",
+    "build:esm": "tsc && echo '{\"type\": \"module\"}' > esm/package.json",
+    "build:cjs": "tsc --module commonjs --outDir cjs && echo '{\"type\": \"commonjs\"}' > cjs/package.json",
+    "build": "npm run build:esm && npm run build:cjs",
+    "dev": "tsc --watch",
+    "test": "mocha ./esm/test/**/*.test.ts"
+  },
+  "directories": {
+    "src": "./src"
+  },
+  "files": [
+    "src",
+    "esm",
+    "cjs",
+    "!build/test",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "front-matter": "^4.0.2",
+    "lru-cache": "^10.0.0",
+    "marked": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "expect": "^29.3.1",
+    "mocha": "^10.1.0",
+    "typescript": "^5.1.6"
+  }
+}

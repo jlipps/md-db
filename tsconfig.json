@@ -1,0 +1,14 @@
+{
+    "include": ["src/**/*", "test/**/*"],
+    "compilerOptions": {
+        "outDir": "esm",
+        "strict": true,
+        "inlineSourceMap": true,
+        "allowJs": false,
+        "declaration": true,
+        "moduleResolution": "Node",
+        "module": "ESNext",
+        "target": "ES2022",
+        "types": ["mocha", "expect", "node"]
+    }
+}
