@@ -15,7 +15,7 @@
     "build:cjs": "tsc --module commonjs --outDir cjs && echo '{\"type\": \"commonjs\"}' > cjs/package.json",
     "build": "npm run build:esm && npm run build:cjs",
     "dev": "tsc --watch",
-    "test": "mocha ./esm/test/**/*.test.ts"
+    "test": "mocha ./test/**/*.test.ts"
   },
   "directories": {
     "src": "./src"
@@ -24,19 +24,26 @@
     "src",
     "esm",
     "cjs",
-    "!build/test",
+    "!esm/test",
+    "!cjs/test",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
+    "ajv": "^8.12.0",
     "front-matter": "^4.0.2",
+    "glob": "^10.3.3",
+    "inflection": "^2.0.1",
+    "lodash-es": "^4.17.21",
     "lru-cache": "^10.0.0",
     "marked": "^6.0.0"
   },
   "devDependencies": {
+    "@types/lodash-es": "^4.17.8",
     "@types/mocha": "^10.0.1",
     "expect": "^29.3.1",
     "mocha": "^10.1.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
 }
