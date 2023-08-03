@@ -1,6 +1,6 @@
 {
   "name": "muaddib",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Use markdown flat files as a relational content database",
   "type": "module",
   "exports": {
