@@ -18,14 +18,25 @@ export interface MarkdownDBOpts {
 
 export interface AddObjectTypeOpts {
     dirName?: string,
-    hasMany?: string,
-    hasOne?: string,
-    belongsTo?: string,
+    relations?: Relation[]
+}
+
+export enum RelationType {
+    HasMany = 'hasMany',
+    HasOne = 'hasOne',
+    BelongsTo = 'belongsTo',
+}
+
+export interface Relation {
+    type: RelationType,
+    link: string,
+    required?: boolean,
 }
 
 interface ObjectType {
     dirName: string,
     schemaValidator: ValidateFunction,
+    relations: Relation[]
 }
 
 export type ParsedObject<T> = T & {
@@ -33,6 +44,7 @@ export type ParsedObject<T> = T & {
     _html: string,
     _slug: string,
     _path: string,
+    [key: string]: any // need this wildcard since we dynamically add relations
 }
 
 export class NoSuchObjectTypeError extends Error {
@@ -68,10 +80,27 @@ export default class MarkdownDB {
         if (schema.properties.id) {
             throw new Error(`Object schemas cannot include reserved key 'id'`)
         }
-        schema.properties.id = {type: ['string', 'number']}
+        schema.properties.id = {type: 'string'}
         schema.required.push('id')
+        if (opts.relations) {
+            for (const rel of opts.relations) {
+                if (rel.type === RelationType.HasMany) {
+                    const hasManyKey = pluralize(rel.link)
+                    if (schema.properties[hasManyKey]) {
+                        throw new Error(`hasMany relationship from '${type}' to '${rel.link}' already ` +
+                            `defined as '${hasManyKey}'. Don't define this yourself`)
+                    }
+                    schema.properties[hasManyKey] = {type: 'array', items: {type: 'string'}, nullable: true}
+                    if (rel.required) {
+                        schema.required.push(hasManyKey)
+                    }
+                } else {
+                    throw new Error(`Don't know how to handle relation type '${rel.type}'`)
+                }
+            }
+        }
         const compiledSchema = this.ajv.compile(schema)
-        this.objectTypes[type] = {dirName, schemaValidator: compiledSchema}
+        this.objectTypes[type] = {dirName, schemaValidator: compiledSchema, relations: opts.relations ?? []}
     }
 
     private async getFilesForType(type: string) {
@@ -130,9 +159,33 @@ export default class MarkdownDB {
             }
             const _html = marked.parse(body, {mangle: false, headerIds: false})
             cachedObject = {...(metadata as T), id, _html, _slug: fileNameToSlug(mdFile), _path: mdFile}
+            await this.hydrateRelations(type, cachedObject)
             this.cacheByFile.set(mdFile, cachedObject)
         }
         return cachedObject
+    }
+
+    private async hydrateRelations(type: string, object: ParsedObject<any>) {
+        if (!this.objectTypes[type]) {
+            throw new NoSuchObjectTypeError(type)
+        }
+        const rels = this.objectTypes[type].relations
+        for (const rel of rels) {
+            if (rel.type === RelationType.HasMany) {
+                const hasManyKey = pluralize(rel.link)
+                if (!object[hasManyKey]) {
+                    continue
+                }
+                const newItems = []
+                for (const oldItem of object[hasManyKey]) {
+                    // these are the ids
+                    newItems.push(await this.getObjectById(rel.link, oldItem))
+                }
+                object[hasManyKey] = newItems
+            } else {
+                throw new Error(`Can't hydrate relations of type ${rel.type}`)
+            }
+        }
     }
 
     async getObjectById<T>(type: string, id: string): Promise<ParsedObject<T>> {

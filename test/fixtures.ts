@@ -24,3 +24,15 @@ export const ARTICLE_SCHEMA: JSONSchemaType<Article> = {
   },
   required: ['author', 'title'],
 }
+
+export interface Author {
+    name: string,
+}
+export const AUTHOR_NAME = 'author'
+export const AUTHOR_SCHEMA: JSONSchemaType<Author> = {
+    type: 'object',
+    properties: {
+        name: {type: 'string'},
+    },
+    required: ['name'],
+}
