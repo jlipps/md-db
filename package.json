@@ -1,7 +1,7 @@
 {
-  "name": "md-db",
+  "name": "muaddib",
   "version": "0.0.2",
-  "description": "Use markdown flat files as a content database",
+  "description": "Use markdown flat files as a relational content database",
   "type": "module",
   "exports": {
     "require": "./cjs/index.js",
