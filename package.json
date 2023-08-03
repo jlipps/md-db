@@ -4,16 +4,17 @@
   "description": "Use markdown flat files as a relational content database",
   "type": "module",
   "exports": {
-    "require": "./cjs/index.js",
-    "import": "./esm/index.js"
+    "require": "./cjs/src/index.js",
+    "import": "./esm/src/index.js"
   },
-  "main": "cjs/index.js",
+  "main": "./cjs/src/index.js",
   "scripts": {
-    "clean": "rm -rf node_modules && npm install",
+    "clean:build": "rm -rf esm && rm -rf cjs",
+    "clean": "npm run clean:build && rm -rf node_modules && npm install",
     "update": "rm -rf package-lock.json && rm -rf node_modules && npm install",
     "build:esm": "tsc && echo '{\"type\": \"module\"}' > esm/package.json",
     "build:cjs": "tsc --module commonjs --outDir cjs && echo '{\"type\": \"commonjs\"}' > cjs/package.json",
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "npm run clean:build && npm run build:esm && npm run build:cjs",
     "dev": "tsc --watch",
     "test": "mocha ./test/**/*.test.ts"
   },
