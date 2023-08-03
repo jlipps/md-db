@@ -1,6 +1,6 @@
 {
   "name": "md-db",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Use markdown flat files as a content database",
   "type": "module",
   "exports": {
