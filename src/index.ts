@@ -10,6 +10,7 @@ import {fileNameToSlug} from './utils'
 import * as _ from 'lodash-es'
 
 const DEFAULT_MAX_CACHE_SIZE = 64 * 1024 * 1024
+const ID_SCHEMA_TYPE = {type: ['string', 'integer']}
 
 export interface MarkdownDBOpts {
     baseDir: string,
@@ -80,7 +81,7 @@ export default class MarkdownDB {
         if (schema.properties.id) {
             throw new Error(`Object schemas cannot include reserved key 'id'`)
         }
-        schema.properties.id = {type: 'string'}
+        schema.properties.id = ID_SCHEMA_TYPE
         schema.required.push('id')
         if (opts.relations) {
             for (const rel of opts.relations) {
@@ -90,7 +91,7 @@ export default class MarkdownDB {
                         throw new Error(`hasMany relationship from '${type}' to '${rel.link}' already ` +
                             `defined as '${hasManyKey}'. Don't define this yourself`)
                     }
-                    schema.properties[hasManyKey] = {type: 'array', items: {type: 'string'}, nullable: true}
+                    schema.properties[hasManyKey] = {type: 'array', items: ID_SCHEMA_TYPE, nullable: !!rel.required}
                     if (rel.required) {
                         schema.required.push(hasManyKey)
                     }
@@ -125,7 +126,7 @@ export default class MarkdownDB {
         }
     }
 
-    private getCachedObjectById<T>(type: string, id: string): ParsedObject<T> | undefined {
+    private getCachedObjectById<T>(type: string, id: string|number): ParsedObject<T> | undefined {
         const cacheKey = `${type}-${id}`
         const filePath = this.cacheById[cacheKey]
         if (filePath) {
@@ -188,7 +189,7 @@ export default class MarkdownDB {
         }
     }
 
-    async getObjectById<T>(type: string, id: string): Promise<ParsedObject<T>> {
+    async getObjectById<T>(type: string, id: string|number): Promise<ParsedObject<T>> {
         let cachedObject = this.getCachedObjectById<T>(type, id)
         if (!cachedObject) {
             for (const mdFile of await this.getFilesForType(type)) {

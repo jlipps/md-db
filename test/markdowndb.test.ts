@@ -14,7 +14,7 @@ describe('MarkdownDB', () => {
         const db = new MarkdownDB({baseDir: F2_PATH})
         db.addObjectType<Article>(ARTICLE_NAME, ARTICLE_SCHEMA)
         await expect(async () => {
-            await db.getObjectById(ARTICLE_NAME, '2')
+            await db.getObjectById(ARTICLE_NAME, 2)
         }).rejects.toThrowError(/Could not validate/)
     })
 
@@ -28,7 +28,7 @@ describe('MarkdownDB', () => {
                 required: true,
             }]
         })
-        const author = await db.getObjectById<Author>(AUTHOR_NAME, '1')
+        const author = await db.getObjectById<Author>(AUTHOR_NAME, 1)
         expect(author.articles).toHaveLength(1)
         expect(author.articles[0].title).toBe('A Really Great Article')
     })
