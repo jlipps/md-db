@@ -1,12 +1,12 @@
 import {expect} from 'expect'
-import MarkdownDB, {RelationType} from '../src'
+import MarkdownDB, {Relation, RelationType, Relations} from '../src'
 import {F1_PATH, F2_PATH, ARTICLE_NAME, ARTICLE_SCHEMA, Article, AUTHOR_NAME, AUTHOR_SCHEMA, Author} from './fixtures'
 
 describe('MarkdownDB', () => {
     it('should be able to load an object from a file', async () => {
         const db = new MarkdownDB({baseDir: F1_PATH})
         db.addObjectType<Article>(ARTICLE_NAME, ARTICLE_SCHEMA)
-        const articles = await db.getObjectsOfType<Article>(ARTICLE_NAME)
+        const articles = await db.getAllByType<Article>(ARTICLE_NAME)
         expect(articles).toHaveLength(1)
     })
 
@@ -14,22 +14,48 @@ describe('MarkdownDB', () => {
         const db = new MarkdownDB({baseDir: F2_PATH})
         db.addObjectType<Article>(ARTICLE_NAME, ARTICLE_SCHEMA)
         await expect(async () => {
-            await db.getObjectById(ARTICLE_NAME, 2)
+            await db.findById(ARTICLE_NAME, 2)
         }).rejects.toThrowError(/Could not validate/)
     })
 
-    it('should load hasMany relationships', async () => {
+    describe('with author/article fixtures', () => {
         const db = new MarkdownDB({baseDir: F1_PATH})
-        db.addObjectType<Article>(ARTICLE_NAME, ARTICLE_SCHEMA)
-        db.addObjectType<Author>(AUTHOR_NAME, AUTHOR_SCHEMA, {
-            relations: [{
-                type: RelationType.HasMany,
-                link: 'article',
+        const articleRelations: Relations = {
+            author: {
+                relType: RelationType.HasOne,
+                objType: 'author',
                 required: true,
-            }]
+            }
+        } as const
+        const authorRelations: Relations = {
+            articles: {
+                relType: RelationType.HasMany,
+                objType: 'article',
+                required: true,
+            }
+        } as const
+        db.addObjectType<Article>(ARTICLE_NAME, ARTICLE_SCHEMA, {relations: articleRelations})
+        db.addObjectType<Author>(AUTHOR_NAME, AUTHOR_SCHEMA, {relations: authorRelations})
+
+        it('should load relations', async () => {
+            const author = await db.findById<Author>(AUTHOR_NAME, 1)
+            expect(author.articles).toHaveLength(1)
+            expect(author.articles[0].title).toBe('A Really Great Article')
+            const article = await db.findById<Article>(ARTICLE_NAME, 1)
+            expect(article.author.name).toBe('Jonathan Lipps')
         })
-        const author = await db.getObjectById<Author>(AUTHOR_NAME, 1)
-        expect(author.articles).toHaveLength(1)
-        expect(author.articles[0].title).toBe('A Really Great Article')
+
+        it('should allow basic AND type queries', async () => {
+            let authors = await db.find<Author>(AUTHOR_NAME, {name: 'Bob'})
+            expect(authors).toHaveLength(0)
+
+            authors = await db.find<Author>(AUTHOR_NAME, {name: 'Jonathan Lipps', id: 200})
+            expect(authors).toHaveLength(0)
+
+            authors = await db.find<Author>(AUTHOR_NAME, {name: 'Jonathan Lipps'})
+            expect(authors).toHaveLength(1)
+            expect(authors[0].name).toBe('Jonathan Lipps')
+        })
     })
+
 })

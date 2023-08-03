@@ -10,26 +10,26 @@ export const F1_PATH = resolve(FIXT_PATH, '1')
 export const F2_PATH = resolve(FIXT_PATH, '2')
 
 export interface Article {
-  author: string,
+  author: Author,
   title: string,
   date?: number,
 }
 export const ARTICLE_NAME = 'article'
-export const ARTICLE_SCHEMA: JSONSchemaType<Article> = {
+export const ARTICLE_SCHEMA: JSONSchemaType<Omit<Article, 'author'>> = {
   type: 'object',
   properties: {
-    author: {type: 'string'},
     title: {type: 'string'},
     date: {type: 'integer', nullable: true},
   },
-  required: ['author', 'title'],
+  required: ['title'],
 }
 
 export interface Author {
     name: string,
+    articles: Article[]
 }
 export const AUTHOR_NAME = 'author'
-export const AUTHOR_SCHEMA: JSONSchemaType<Author> = {
+export const AUTHOR_SCHEMA: JSONSchemaType<Omit<Author, 'articles'>> = {
     type: 'object',
     properties: {
         name: {type: 'string'},

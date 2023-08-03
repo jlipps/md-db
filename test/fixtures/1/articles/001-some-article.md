@@ -1,6 +1,6 @@
 ---
 id: 1
-author: Jonathan Lipps
+author: 1
 title: A Really Great Article
 ---
 
