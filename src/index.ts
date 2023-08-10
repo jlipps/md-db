@@ -6,7 +6,7 @@ import { marked } from 'marked'
 import Ajv, {JSONSchemaType, ValidateFunction} from 'ajv'
 import {pluralize} from 'inflection'
 import {glob} from 'glob'
-import {fileNameToSlug} from './utils'
+import {fileNameToSlug} from './utils.js'
 import * as _ from 'lodash-es'
 
 const DEFAULT_MAX_CACHE_SIZE = 64 * 1024 * 1024

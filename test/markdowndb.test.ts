@@ -1,6 +1,6 @@
 import {expect} from 'expect'
-import MarkdownDB, {Relation, RelationType, Relations} from '../src'
-import {F1_PATH, F2_PATH, ARTICLE_NAME, ARTICLE_SCHEMA, Article, AUTHOR_NAME, AUTHOR_SCHEMA, Author} from './fixtures'
+import MarkdownDB, {Relation, RelationType, Relations} from '../src/index.js'
+import {F1_PATH, F2_PATH, ARTICLE_NAME, ARTICLE_SCHEMA, Article, AUTHOR_NAME, AUTHOR_SCHEMA, Author} from './fixtures.js'
 
 describe('MarkdownDB', () => {
     it('should be able to load an object from a file', async () => {
