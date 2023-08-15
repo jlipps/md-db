@@ -4,6 +4,7 @@ import { LRUCache } from 'lru-cache'
 import frontMatter from 'front-matter'
 import { marked } from 'marked'
 import Ajv, {JSONSchemaType, ValidateFunction} from 'ajv'
+import addFormats from 'ajv-formats'
 import {pluralize} from 'inflection'
 import {glob} from 'glob'
 import {fileNameToSlug} from './utils.js'
@@ -76,6 +77,7 @@ export default class MarkdownDB {
         this.cacheById = {}
         this.filenameCache = {}
         this.ajv = new Ajv({allowUnionTypes: true})
+        addFormats(this.ajv)
         this.objsInHydration = []
 
     }
